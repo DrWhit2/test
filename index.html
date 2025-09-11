@@ -3,64 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Monochrome RPG Chat — index.html</title>
-  <meta name="description" content="흑백 단색(모노톤) 쯔꾸루풍 — 배경 + 하단 얼굴/대사 + 그 아래 레트로 입력창"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>Monochrome RPG Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    /* ===== Palette (4-tone monochrome, blueish) ===== */
     :root{
       --c0:#0a0d12;  /* darkest */
       --c1:#1c2834;  /* dark */
       --c2:#6c91b1;  /* light */
       --c3:#d6eeff;  /* lightest */
-      --scan:rgba(255,255,255,.06);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:var(--c0);color:var(--c3);font-family:'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+    body{margin:0;background:var(--c0);color:var(--c3);
+         font-family:'Press Start 2P', monospace;}
+
     img{image-rendering:pixelated; image-rendering: crisp-edges;}
 
-    /* ===== Game Viewport ===== */
     .viewport{position:fixed; inset:0; overflow:hidden; background:var(--c1);}
-    /* Background layer (user image or tiles) */
-    .bg{position:absolute; inset:0; background:radial-gradient(120% 90% at 50% 30%, var(--c2) 0%, var(--c1) 40%, var(--c0) 100%);
-        filter:contrast(120%) saturate(80%);}
-    .bg.pixel{background-size:cover; background-position:center; filter:grayscale(100%) contrast(180%) brightness(90%);}
+    .bg{position:absolute; inset:0; 
+        background: url('https://picsum.photos/800/600') center/cover no-repeat;
+        filter:grayscale(100%) contrast(180%) brightness(80%);}
+    .viewport::after{content:""; position:absolute; inset:0; pointer-events:none;
+        background:repeating-linear-gradient(0deg,
+        rgba(255,255,255,.08),rgba(255,255,255,.08) 1px,
+        transparent 1px, transparent 2px);}
 
-    /* subtle scanlines */
-    .viewport::after{content:""; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, var(--scan), var(--scan) 1px, transparent 1px, transparent 2px)}
+    /* HUD */
+    .hud{position:absolute; left:50%; transform:translateX(-50%);
+         bottom:20px; width:min(900px, 94vw);}
+    .dialog{display:grid; grid-template-columns: 96px 1fr; gap:10px;}
 
-    /* ===== HUD: bottom dialogue ===== */
-    .hud{position:absolute; left:50%; transform:translateX(-50%); bottom:24px; width:min(1000px, 94vw);}    
-    .dialog{display:grid; grid-template-columns: 112px 1fr; gap:10px; align-items:end}
+    .face{background:var(--c0); border:3px solid var(--c3); padding:6px;
+          height:96px; display:grid; place-items:center}
+    .face img{height:100%; width:auto}
 
-    .face{background:var(--c0); border:4px solid var(--c3); padding:6px; border-radius:6px; height:112px; display:grid; place-items:center}
-    .face img{height:100%; width:auto; border-radius:2px}
+    .box{position:relative; background:var(--c0);
+         border:3px solid var(--c3); padding:10px; min-height:96px}
+    .name{position:absolute; top:-12px; left:12px;
+          background:var(--c0); padding:2px 6px; border:3px solid var(--c3);
+          font-size:10px;}
+    .text{min-height:60px; font-size:12px; line-height:1.6;}
 
-    .box{position:relative; background:var(--c0); border:4px solid var(--c3); border-radius:6px; padding:12px; min-height:112px}
-    .box::before, .box::after{content:""; position:absolute; inset:0; border:2px solid var(--c2); border-radius:4px; pointer-events:none; margin:3px}
-    .name{position:absolute; top:-12px; left:16px; background:var(--c0); padding:2px 6px; border:4px solid var(--c3); border-radius:6px; font-size:10px; letter-spacing:.03em}
-    .text{min-height:68px; line-height:1.6; font-size:12px;}
-
-    /* ===== Retro Input Bar ===== */
-    .inputbar{margin-top:10px; display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center}
-    .prompt{color:var(--c2); font-size:12px}
-    .inwrap{position:relative}
-    input[type="text"]{width:100%; background:var(--c0); color:var(--c3); border:4px solid var(--c3); border-radius:6px; padding:10px 12px; font: inherit; font-size:12px}
-    input[type="text"]:focus{outline:none; box-shadow:0 0 0 3px var(--c2) inset}
-    .send{background:var(--c0); color:var(--c3); border:4px solid var(--c3); border-radius:6px; padding:10px 12px; font:inherit; cursor:pointer}
+    .inputbar{margin-top:8px; display:grid; grid-template-columns: 1fr auto; gap:6px}
+    input[type=text]{width:100%; background:var(--c0); color:var(--c3);
+          border:3px solid var(--c3); padding:8px; font:inherit; font-size:12px}
+    .send{background:var(--c0); color:var(--c3); border:3px solid var(--c3);
+          padding:8px 12px; font:inherit; cursor:pointer}
     .send:hover{background:var(--c1)}
 
-    /* tiny footer (notice) */
-    .notice{position:absolute; left:50%; transform:translateX(-50%); bottom:6px; width:min(1000px, 94vw); color:var(--c2); font-size:10px; opacity:.9}
-
-    @media (max-width: 720px){
+    @media(max-width:720px){
       .dialog{grid-template-columns: 1fr}
-      .face{order:2; height:96px}
-      .box{order:1}
-      .text{font-size:11px}
+      .face{height:72px}
+      .text{font-size:10px}
     }
   </style>
 </head>
@@ -69,99 +63,85 @@
     <div class="bg" id="bg"></div>
 
     <div class="hud">
-      <!-- Face + Dialog -->
       <div class="dialog">
-        <div class="face" id="faceBox"><span style="color:var(--c2);font-size:10px">FACE</span></div>
+        <div class="face" id="faceBox">
+          <img src="https://picsum.photos/96/96" alt="face"/>
+        </div>
         <div class="box">
           <div class="name" id="name">Oswald</div>
           <div class="text" id="text"></div>
           <div class="inputbar">
-            <div class="prompt">▶ 입력</div>
-            <div class="inwrap"><input id="input" type="text" placeholder="여기에 말을 적고 Enter" autocomplete="off"/></div>
+            <input id="input" type="text" placeholder="▶ 입력" autocomplete="off"/>
             <button class="send" id="send">보내기</button>
           </div>
         </div>
       </div>
-      
-      <div class="notice" id="notice">ENDPOINT가 없으면 데모 톤으로 응답합니다 · 배경/얼굴/이름/ENDPOINT는 로컬에 저장됩니다</div>
     </div>
   </div>
 
-  <script>
-    const $ = (q)=>document.querySelector(q);
-    const T = (ms)=>new Promise(r=>setTimeout(r,ms));
+<script>
+const $=(q)=>document.querySelector(q);
+const T=(ms)=>new Promise(r=>setTimeout(r,ms));
 
-    const state = {
-      endpoint: localStorage.getItem('endpoint')||'',
-      name: localStorage.getItem('name')||'Oswald White',
-      face: localStorage.getItem('face')||'',
-      bg:   localStorage.getItem('bg')||'',
-      sys:  localStorage.getItem('sys')||'당신은 오스월드 화이트입니다. 절제되고 논리적인 어조로 간결하게 답합니다.',
-      few:  localStorage.getItem('few')||'그 판단은 통계적으로 설득력이 낮습니다.\n증거를 우선 제시하시죠.'
-    };
+const state={
+  endpoint: localStorage.getItem('endpoint')||'',
+  name: localStorage.getItem('name')||'Oswald',
+  face: localStorage.getItem('face')||'',
+  bg: localStorage.getItem('bg')||'',
+  sys: localStorage.getItem('sys')||'당신은 오스월드 화이트입니다. 절제되고 논리적으로 간결하게 답합니다.',
+  few: localStorage.getItem('few')||'핵심만 말하죠. 요지는 무엇입니까?'
+};
 
-    // Apply name
-    $('#name').textContent = state.name;
+// 초기 적용
+$('#name').textContent=state.name;
+if(state.face) $('#faceBox').innerHTML=`<img src=\"${state.face}\" alt=\"face\">`;
+if(state.bg) $('#bg').style.backgroundImage=`url('${state.bg}')`;
 
-    // Apply face
-    function applyFace(){
-      const box = $('#faceBox');
-      if(state.face){ const img=new Image(); img.src=state.face; img.alt='face'; box.innerHTML=''; box.appendChild(img); }
-    }
-    applyFace();
+// 타자효과
+async function typewrite(el,text,speed=12){
+  el.textContent=''; for(let i=0;i<text.length;i++){
+    el.textContent+=text[i]; await T(speed);
+  }
+}
 
-    // Apply background
-    function applyBG(){
-      const bg = $('#bg');
-      if(state.bg){ bg.classList.add('pixel'); bg.style.backgroundImage = `url('${state.bg}')`; }
-    }
-    applyBG();
+// AI 호출 (엔드포인트 없으면 데모)
+async function callAI(user){
+  if(!state.endpoint){
+    const canned=['전제부터 확인합시다.','관찰을 정리해 보세요.','대안은 두 개 이상입니다.','증거부터 제시하시죠.'];
+    return canned[Math.floor(Math.random()*canned.length)];
+  }
+  const res=await fetch(state.endpoint,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      system:state.sys,
+      examples:state.few.split('\\n').filter(Boolean).slice(0,8),
+      messages:[{role:'system',content:`캐릭터명:${state.name}`},{role:'user',content:user}]
+    })
+  });
+  if(!res.ok) throw new Error('API '+res.status);
+  if(res.body && window.ReadableStream){
+    const reader=res.body.getReader(); const dec=new TextDecoder(); let acc='';
+    while(true){const {value,done}=await reader.read(); if(done) break;
+      acc+=dec.decode(value,{stream:true});
+      await typewrite($('#text'),`${state.name}: ${acc}`,4);}
+    return acc.trim();
+  }else{const data=await res.json(); return data.reply||'';}
+}
 
-    // Typewriter
-    async function typewrite(el, text, speed=8){
-      el.textContent='';
-      for(let i=0;i<text.length;i++){ el.textContent += text[i]; await T(speed); }
-    }
+// 전송 핸들러
+async function send(){
+  const v=$('#input').value.trim(); if(!v) return; $('#input').value='';
+  await typewrite($('#text'),`▶ 당신: ${v}`,4);
+  try{const a=await callAI(v); await typewrite($('#text'),`${state.name}: ${a}`,4);}
+  catch(e){await typewrite($('#text'),`[오류] ${e.message}`,4);}
+}
+$('#send').onclick=send;
+$('#input').addEventListener('keydown',e=>{if(e.key==='Enter') send();});
 
-    // AI call (demo fallback)
-    async function callAI(user){
-      if(!state.endpoint){
-        const canned = [
-          '전제부터 확인합시다.', '관찰을 정리해 보세요.', '대안은 최소 두 개 이상입니다.', '증거를 먼저요.'
-        ];
-        return (user.length>40? '요지를 한 줄로: ':'') + canned[Math.floor(Math.random()*canned.length)];
-      }
-      const res = await fetch(state.endpoint, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ system: state.sys, examples: state.few.split('\n').filter(Boolean).slice(0,8), messages:[{role:'system', content:`캐릭터명:${state.name}`},{role:'user', content:user}] })
-      });
-      if(!res.ok) throw new Error('API '+res.status);
-      if(res.body && window.ReadableStream){
-        const reader=res.body.getReader(); const dec=new TextDecoder(); let acc='';
-        while(true){ const {value, done}=await reader.read(); if(done) break; acc += dec.decode(value,{stream:true}); await typewrite($('#text'), `${state.name}: ${acc}`, 4); }
-        return acc.trim();
-      } else { const data = await res.json(); return data.reply||''; }
-    }
-
-    // Send handler
-    async function send(){
-      const input=$('#input'); const v=input.value.trim(); if(!v) return; input.value='';
-      await typewrite($('#text'), `▶ 당신: ${v}`, 4);
-      try{ const a = await callAI(v); await typewrite($('#text'), `${state.name}: ${a}`, 4); }
-      catch(e){ await typewrite($('#text'), `[오류] ${e.message}`, 4); }
-    }
-    $('#send').onclick = send;
-    $('#input').addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
-
-    // Greeting
-    (async()=>{ await typewrite($('#text'), `${state.name}: …`, 80); await T(300); await typewrite($('#text'), `${state.name}: 대화를 시작하시죠.`, 12); })();
-
-    // Quick shortcuts for you (developer):
-    // 얼굴/배경/이름/엔드포인트 설정은 브라우저 콘솔에서 다음처럼:
-    // localStorage.setItem('face','https://.../face.png');
-    // localStorage.setItem('bg','https://.../bg.png');
-    // localStorage.setItem('name','Oswald');
-    // localStorage.setItem('endpoint','https://your-bot.vercel.app/api/chat');
-  </script>
+// 시작 인사
+(async()=>{await typewrite($('#text'),`${state.name}: …`,60); await T(300);
+await typewrite($('#text'),`${state.name}: 대화를 시작하시죠.`,12);})();
+</script>
 </body>
 </html>
+
