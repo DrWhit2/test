@@ -8,45 +8,21 @@
 </head>
 <body>
   <main id="book" class="book" aria-label="수첩">
-    <!-- 왼쪽: 고정 가죽 보드 + 메모 -->
-    <aside class="board" aria-label="메모 보드">
-      <div class="leather-grain"></div>
-      <div class="holes" aria-hidden="true"></div>
-      <div class="memos">
-        <div class="sticky tilt-l" style="top:28px; left:22px;">
-          <div class="pin"></div><div class="scribble short"></div><div class="scribble"></div>
-        </div>
-        <div class="letter tilt-r" style="top:134px; left:172px;">
-          <div class="stamp">TOP<br/>SECRET</div><div class="scribble"></div><div class="scribble"></div>
-        </div>
-        <div class="note-card tilt-l" style="top:244px; left:38px;">
-          <div class="clip"></div><div class="scribble"></div><div class="scribble short"></div>
-        </div>
-        <div class="ticket tilt-r" style="top:340px; left:212px;">A-52</div>
-      </div>
-    </aside>
-
     <!-- 중앙 스파인 -->
     <div class="spine" aria-hidden="true"><div class="stitches"></div><div class="grain"></div></div>
 
-    <!-- 오른쪽: 페이지 무대 -->
-    <section class="stage" aria-label="페이지">
-      <!-- 현재 페이지(정지 상태, PNG 표시) -->
-      <div id="pageCurrent" class="page">
-        <div class="texture"></div>
-      </div>
-      <!-- 넘김 애니메이션을 위한 오버레이가 JS로 여기에 붙음 -->
-      <div id="overlay"></div>
-      <!-- 목차 포스트잇(장식) -->
-      <div class="tabs" aria-hidden="true">
-        <div class="tab tab-yellow">프롤로그</div>
-        <div class="tab tab-green">기록</div>
-        <div class="tab tab-pink">증거</div>
-        <div class="tab tab-blue">부록</div>
-      </div>
-    </section>
+    <!-- 리프(한 장)들이 JS로 여기에 생성됨 -->
+    <div id="stack" class="stack" aria-hidden="false"></div>
 
-    <!-- 전체 클릭/스와이프 네비 핫스팟 -->
+    <!-- 오른쪽 장식 탭 (선택) -->
+    <div class="tabs" aria-hidden="true">
+      <div class="tab tab-yellow">프롤로그</div>
+      <div class="tab tab-green">기록</div>
+      <div class="tab tab-pink">증거</div>
+      <div class="tab tab-blue">부록</div>
+    </div>
+
+    <!-- 이전/다음 핫스팟 -->
     <button class="nav prev" aria-label="이전 페이지"></button>
     <button class="nav next" aria-label="다음 페이지"></button>
   </main>
