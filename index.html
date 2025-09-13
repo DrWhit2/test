@@ -1,25 +1,412 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>빈티지 다이어리</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>INK CITY • Splatoon-style</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#2b2e34;         /* 단색 짙은 회색 */
+  --panel:#20232a;      /* 패널 */
+  --paper:#ececec;      /* 종이 */
+  --inkY:#fff24a;       /* 노랑 */
+  --inkB:#4046ff;       /* 보라에 가까운 진파랑 */
+  --text:#eaf0ff;
+  --muted:#9aa3b4;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0; font-family:Nunito,system-ui,sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden}
+
+/* 상단 탭: 무테 */
+.top{position:sticky; top:0; display:flex; gap:8px; padding:12px 16px; background:#1f2127}
+.brand{display:flex; align-items:center; gap:8px}
+.brand i{width:24px; height:24px; border-radius:6px; background:var(--inkY)}
+.brand b{font-family:'Black Han Sans',sans-serif; font-size:24px}
+.nav{display:flex; gap:8px}
+.tab{appearance:none; border:0; background:#2a2d35; color:var(--text); padding:9px 12px; border-radius:10px; font:900 12px Nunito; cursor:pointer}
+.tab[aria-selected="true"]{background:var(--inkB); color:#fff}
+.keys{margin-left:auto; display:flex; gap:6px}
+.key{display:grid; place-items:center; width:24px; height:24px; border-radius:6px; background:#2a2d35; color:#cfe0ff; font:900 11px Nunito}
+
+/* 레이아웃: 왼쪽 폭 대폭 축소 */
+.hero{max-width:1280px; margin:14px auto 0; padding:0 16px; display:grid; grid-template-columns:200px 1.7fr 1fr; gap:14px}
+@media (max-width:1100px){.hero{grid-template-columns:1fr}}
+
+/* 좌 메뉴: 컴팩트 칩 */
+.menu{background:var(--panel); border-radius:12px; padding:10px}
+.mlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.mitem{display:flex; align-items:center; gap:8px; background:#2a2d35; border-radius:10px; padding:9px 10px; cursor:pointer}
+.mitem img{width:20px; height:20px; object-fit:contain}
+.mitem span{font:900 12px Nunito}
+.mitem.is-active{outline:2px solid var(--inkY); outline-offset:2px}
+.back{margin-top:10px; width:100%; background:#2a2d35; color:#eaf0ff; padding:9px 0; border:0; border-radius:10px; font:900 11px Nunito}
+
+/* 중앙 시트: 무테, 섹션별로 다른 레이아웃 */
+.sheet{background:var(--paper); color:#0b0d14; border-radius:12px; padding:12px}
+.sheet h2{margin:0 0 8px; font:900 18px 'Black Han Sans'; color:#121212}
+.board{min-height:340px}
+
+/* 1) 맵 선호: Masonry 콜라주 (다양한 사진 크기 지원) */
+.masonry{column-count:3; column-gap:10px}
+.brick{break-inside:avoid; background:#fff; border-radius:10px; margin:0 0 10px; padding:8px}
+.ph{width:100%; background:#e3e3e3; border-radius:6px; display:grid; place-items:center; color:#666; font:800 12px Nunito}
+.r16{aspect-ratio:16/9} .r11{aspect-ratio:1/1} .r23{aspect-ratio:2/3} .r32{aspect-ratio:3/2}
+
+/* 2) 스티커팩: 패키지 카드 */
+.packgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+.pack{background:#fff; border-radius:10px; padding:0}
+.pack .hdr{background:var(--inkB); color:#fff; border-radius:10px 10px 0 0; padding:8px 10px; font:900 13px Nunito}
+.pack .body{display:flex; gap:10px; padding:10px}
+.pack .slot{flex:0 0 120px; height:100px; background:#e3e3e3; border-radius:6px; display:grid; place-items:center; color:#666; font:800 12px Nunito}
+.pack ul{margin:0; padding-left:16px; color:#222; font:800 12px Nunito}
+
+/* 3) 연어 알바: 두 열 레이아웃 */
+.salmon{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.salmon .big{height:220px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chips .chip{background:#2a2d35; color:#eaf0ff; border-radius:10px; padding:6px 8px; font:900 11px Nunito}
+.kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:6px}
+.kpi .cell{background:#fff; border-radius:8px; padding:10px; text-align:center}
+.kpi b{display:block; font:900 18px Nunito; color:#111}
+
+/* 4) 착장: 기어 패키지 스트립 */
+.gearlist{display:grid; gap:10px}
+.gear{background:#fff; border-radius:10px; padding:10px}
+.ghead{display:flex; align-items:center; gap:8px; margin-bottom:8px}
+.gtag{background:var(--inkY); color:#111; border-radius:8px; padding:4px 8px; font:900 11px Nunito}
+.gline{display:flex; gap:8px}
+.gthumb{flex:0 0 110px; height:90px}
+.grow{display:flex; gap:8px; overflow:auto}
+.gmini{flex:0 0 110px; height:90px}
+
+/* 5) 기록: 타임라인 */
+.timeline{position:relative; padding-left:18px}
+.timeline::before{content:""; position:absolute; left:8px; top:0; bottom:0; width:2px; background:#bbb}
+.ti{position:relative; margin:10px 0; background:#fff; border-radius:10px; padding:8px 10px}
+.ti::before{content:""; position:absolute; left:-13px; top:10px; width:10px; height:10px; border-radius:50%; background:var(--inkB)}
+
+/* 우측 프로필 */
+.profile{display:flex; flex-direction:column; gap:12px}
+.pcard{background:var(--panel); border-radius:12px; padding:12px}
+.face{display:flex; align-items:center; gap:10px}
+.face img{width:64px; height:64px; border-radius:10px; background:#ddd}
+.pname{font:900 18px 'Black Han Sans'}
+.props{margin-top:8px; display:grid; gap:6px}
+.prop{display:flex; justify-content:space-between; color:#dfe6ff; font:800 12px Nunito}
+.ctabs{display:flex; gap:8px}
+.ctab{background:#2a2d35; color:#eaf0ff; border:0; border-radius:10px; padding:8px 12px; font:900 12px Nunito; cursor:pointer}
+.ctab[aria-selected="true"]{background:var(--inkY); color:#111}
+.panel{display:none} .panel.on{display:block}
+.stage{display:grid; place-items:center; background:#ddd; border-radius:10px; height:260px; margin:8px 0}
+.stage .ph{width:88%; height:88%}
+.stats{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.stats li{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px; background:#fff; border-radius:8px; padding:6px; color:#111; font:800 12px Nunito}
+.stats i{grid-column:1/-1; height:8px; background:var(--inkB); width:0}
+
+/* 하단 무기 그리드 */
+.section{max-width:1280px; margin:20px auto 30px; padding:0 16px}
+.head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+.badge{background:#111; color:#fff; border-radius:8px; padding:6px 10px; font:900 12px Nunito}
+.wgrid{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(6,1fr); gap:10px}
+@media (max-width:1100px){.wgrid{grid-template-columns:repeat(3,1fr)}}
+.wcard{background:#2a2d35; border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:8px}
+.thumb{height:110px; border-radius:10px; background:#0f1114; display:grid; place-items:center; color:#7d86a0; font:800 12px Nunito}
+.abil{height:30px; border-radius:8px; background:var(--inkY); display:flex; align-items:center; gap:6px; padding:4px 6px}
+.abil img{width:22px; height:22px; object-fit:contain}
+
+/* HUD */
+.hud{max-width:1280px; margin:0 auto; padding:0 16px; display:flex; justify-content:space-between}
+.hint{background:#2a2d35; border-radius:10px; padding:6px 10px; font:900 12px Nunito; color:#eaf0ff}
+</style>
 </head>
 <body>
-  <main id="book" class="book" aria-label="수첩">
-    <!-- 중앙 스파인 -->
-    <div class="spine" aria-hidden="true"><div class="stitches"></div><div class="grain"></div></div>
+<header class="top">
+  <div class="brand"><i></i><b>INK CITY</b></div>
+  <nav class="nav" role="tablist" aria-label="페이지">
+    <button class="tab" role="tab" aria-selected="true"  data-target="home">Home</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="loadout">Loadout</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="profile">Profile</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="story">Story</button>
+  </nav>
+  <div class="keys"><span class="key">L</span><span class="key">R</span></div>
+</header>
 
-    <!-- 장(leaf)들이 JS로 생성됩니다 -->
-    <div id="stack" class="stack"></div>
+<!-- PAGE: HOME -->
+<section id="home" class="hero" role="region" aria-label="홈">
+  <!-- 좌 메뉴 -->
+  <aside class="menu">
+    <ul class="mlist">
+      <li class="mitem is-active" data-panel="map"><img src="assets/icon_lobby.png" alt=""><span>맵 선호</span></li>
+      <li class="mitem" data-panel="sticker"><img src="assets/icon_general.png" alt=""><span>스티커팩</span></li>
+      <li class="mitem" data-panel="salmon"><img src="assets/icon_shoal.png" alt=""><span>연어 알바</span></li>
+      <li class="mitem" data-panel="gear"><img src="assets/icon_clothing.png" alt=""><span>착장</span></li>
+      <li class="mitem" data-panel="log"><img src="assets/icon_weapons.png" alt=""><span>기록</span></li>
+    </ul>
+    <button class="back" type="button">B Back</button>
+  </aside>
 
-    <!-- 네비게이션 핫스팟 -->
-    <button class="nav prev" aria-label="이전 페이지"></button>
-    <button class="nav next" aria-label="다음 페이지"></button>
-  </main>
+  <!-- 중앙 보드 -->
+  <section class="sheet">
+    <h2 id="boardTitle">맵 선호</h2>
+    <div id="board" class="board"><!-- JS 렌더 --></div>
+  </section>
 
-  <script src="app.js"></script>
+  <!-- 우 프로필 미리보기 -->
+  <aside class="profile">
+    <article class="pcard">
+      <header class="face">
+        <img src="assets/char_face.png" alt="">
+        <div>
+          <div class="pname">오스월드 화이트</div>
+          <div class="prop"><b style="color:#cfe0ff">Aggro • Control</b></div>
+        </div>
+      </header>
+      <div class="props">
+        <div class="prop"><b>메인</b><span>Splattershot Jr.</span></div>
+        <div class="prop"><b>서브</b><span>Splat Bomb</span></div>
+        <div class="prop"><b>스페셜</b><span>Trizooka</span></div>
+      </div>
+    </article>
+
+    <div class="ctabs" role="tablist">
+      <button class="ctab" role="tab" aria-selected="true" data-ctab="intro">Intro</button>
+      <button class="ctab" role="tab" aria-selected="false" data-ctab="stats">Stats</button>
+    </div>
+
+    <section id="p-intro" class="panel on">
+      <div class="stage"><div class="ph">캐릭터 전신 이미지</div></div>
+      <p style="color:#cfe0ff;font:800 12px Nunito;margin:6px 0 0">
+        수로 출신 컨트롤러. 각도로 사각을 열고 팀 라인을 전진시킴.
+      </p>
+    </section>
+
+    <section id="p-stats" class="panel">
+      <ul class="stats">
+        <li><b>이동 속도</b><span>84%</span><i style="--p:84"></i></li>
+        <li><b>잉크 효율</b><span>92%</span><i style="--p:92"></i></li>
+        <li><b>조준 안정</b><span>78%</span><i style="--p:78"></i></li>
+      </ul>
+    </section>
+  </aside>
+</section>
+
+<!-- PAGE: LOADOUT -->
+<section id="loadout" class="section" hidden>
+  <div class="head"><span class="badge">Loadout</span></div>
+  <ul class="wgrid" id="weapons"></ul>
+</section>
+
+<!-- PAGE: PROFILE -->
+<section id="profile" class="section" hidden>
+  <div class="head"><span class="badge" style="background:var(--inkB)">Profile</span></div>
+  <div class="pcard" style="background:var(--panel); padding:12px; border-radius:12px">
+    <div style="display:flex; gap:12px; align-items:center">
+      <div class="ph" style="width:140px;height:140px;background:#ddd;color:#666">프로필 이미지</div>
+      <div>
+        <h3 style="margin:0 0 6px; font:900 18px 'Black Han Sans'">오스월드 화이트</h3>
+        <p style="margin:2px 0;color:#cfe0ff;font:800 12px Nunito">공간 장악과 라인 유도 특화</p>
+        <p style="margin:6px 0 0;font:800 12px Nunito;color:#dfe6ff">좋아하는 맵: Eeltail Alley, Scorch Gorge, Hagglefish Market</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE: STORY -->
+<section id="story" class="section" hidden>
+  <div class="head"><span class="badge" style="background:var(--inkY); color:#111">Story</span></div>
+  <div class="timeline" id="storyline"><!-- JS --></div>
+</section>
+
+<footer class="hud"><div class="hint">ZL Info</div><div class="hint">Y Test</div></footer>
+
+<script>
+/* 샘플 데이터 */
+const DATA={
+  map:[
+    {ratio:'r16', text:'Eeltail Alley • 고지 점유 + 측면 라인 연결', img:''},
+    {ratio:'r23', text:'Scorch Gorge • 중앙 기둥 각도 튕김', img:''},
+    {ratio:'r11', text:'Hagglefish Market • 회랑 차단 후 전진', img:''},
+    {ratio:'r32', text:'Mahi-Mahi Resort • 물 수위 전 환형 라인', img:''},
+    {ratio:'r16', text:'Museum d’Alfonsino • 회전 벽 활용', img:''}
+  ],
+  sticker:[
+    {title:'전용 스티커팩 A', items:['OW 로고','라인 마크','각도자 아이콘'], img:''},
+    {title:'전용 스티커팩 B', items:['경고 테이프','스플랫 점','팀 사인'], img:''},
+    {title:'전용 스티커팩 C', items:['콘트롤 표식','트라이 스트라이크 각'], img:''},
+    {title:'전용 스티커팩 D', items:['비콘 연계','킬체인 2.4'], img:''},
+  ],
+  salmon:{
+    role:['콘베이어 관리','보스 유인','에그 회수 동선 최적화'],
+    pref:['Splatana','Charger','Brella']
+  },
+  gear:[
+    {tag:'Headgear', note:'Shade Cap • 스윔 스피드 메인', imgs:[,,]},
+    {tag:'Clothes',  note:'안전조끼 커스텀 • 서브 감축',  imgs:[,,]},
+    {tag:'Shoes',    note:'캔버스 화이트 • 잉크 절약',   imgs:[,,]}
+  ],
+  log:[
+    '챌린지 승률 68% • 개막 라인 확보 82%',
+    '비콘 연계 킬체인 평균 2.4',
+    '연어 알바 HZ 200% 달성 • 역할: 유인/라인',
+  ],
+  weapons:[
+    "weapon_splattershotjr.png","weapon_slosher.png","weapon_dualies.png","weapon_blaster.png",
+    "weapon_brella.png","weapon_charger.png","weapon_roller.png","weapon_sloshingmachine.png",
+    "weapon_stringer.png","weapon_splatana.png","weapon_h_3nozzlenose.png","weapon_carbonroller.png"
+  ]
+};
+
+/* ===== 중앙 보드 렌더: 패널별 서로 다른 UI ===== */
+const board=document.getElementById('board');
+function render(kind){
+  board.className='board'; board.innerHTML='';
+  if(kind==='map'){
+    board.classList.add('masonry');
+    DATA.map.forEach(m=>{
+      const a=document.createElement('article'); a.className='brick';
+      a.innerHTML=`<div class="ph ${m.ratio}">이미지 자리</div><p style="margin:6px 2px 0;color:#222;font:800 12px Nunito">• ${m.text}</p>`;
+      board.appendChild(a);
+    });
+  }
+  if(kind==='sticker'){
+    const wrap=document.createElement('div'); wrap.className='packgrid';
+    DATA.sticker.forEach(s=>{
+      const p=document.createElement('article'); p.className='pack';
+      p.innerHTML=`<div class="hdr">${s.title}</div>
+        <div class="body">
+          <div class="slot">팩 이미지</div>
+          <ul>${s.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+        </div>`;
+      wrap.appendChild(p);
+    });
+    board.appendChild(wrap);
+  }
+  if(kind==='salmon'){
+    const s=document.createElement('div'); s.className='salmon';
+    s.innerHTML=`
+      <div class="card"><h3 style="margin:0 0 6px;font:900 14px 'Black Han Sans';color:#111">근무 스냅</h3>
+        <div class="ph big">연어런 스냅 이미지</div>
+      </div>
+      <div class="card">
+        <h3 style="margin:0 0 6px;font:900 14px 'Black Han Sans';color:#111">역할 / 선호 무기</h3>
+        <div class="chips">${DATA.salmon.role.map(r=>`<span class="chip">${r}</span>`).join('')}</div>
+        <p style="margin:8px 0 4px;color:#222;font:800 12px Nunito">선호 무기</p>
+        <div class="chips">${DATA.salmon.pref.map(p=>`<span class="chip" style="background:var(--inkB)">${p}</span>`).join('')}</div>
+        <div class="kpi" style="margin-top:8px">
+          <div class="cell"><small>Shift Rank</small><b>PRO+</b></div>
+          <div class="cell"><small>HZ Max?</small><b>YES</b></div>
+          <div class="cell"><small>Avg Eggs</small><b>19</b></div>
+        </div>
+      </div>`;
+    board.appendChild(s);
+  }
+  if(kind==='gear'){
+    const g=document.createElement('div'); g.className='gearlist';
+    DATA.gear.forEach(x=>{
+      const row=document.createElement('article'); row.className='gear';
+      row.innerHTML=`<div class="ghead">
+          <span class="gtag">${x.tag}</span>
+          <span style="font:800 12px Nunito;color:#333">${x.note}</span>
+        </div>
+        <div class="gline">
+          <div class="ph gthumb">정면</div>
+          <div class="grow">
+            <div class="ph gmini">측면</div>
+            <div class="ph gmini">후면</div>
+            <div class="ph gmini">디테일</div>
+          </div>
+        </div>`;
+      g.appendChild(row);
+    });
+    board.appendChild(g);
+  }
+  if(kind==='log'){
+    const t=document.createElement('div'); t.className='timeline';
+    DATA.log.forEach(line=>{
+      const it=document.createElement('div'); it.className='ti';
+      it.innerHTML=`<p style="margin:0;color:#222;font:800 12px Nunito">${line}</p>`;
+      t.appendChild(it);
+    });
+    board.appendChild(t);
+  }
+}
+render('map');
+
+/* 좌 메뉴 클릭 */
+document.querySelectorAll('.mitem').forEach(li=>{
+  li.addEventListener('click',()=>{
+    document.querySelectorAll('.mitem').forEach(x=>x.classList.remove('is-active'));
+    li.classList.add('is-active');
+    const p=li.dataset.panel;
+    document.getElementById('boardTitle').textContent={map:'맵 선호', sticker:'스티커팩', salmon:'연어 알바', gear:'착장', log:'기록'}[p]||'정보';
+    render(p);
+  });
+});
+
+/* 상단 탭 전환 */
+const pages=['home','loadout','profile','story'];
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected','false'));
+    t.setAttribute('aria-selected','true');
+    const target=t.dataset.target;
+    pages.forEach(id=>{
+      const el=document.getElementById(id);
+      if(id===target){ el.hidden=false; } else { el.hidden=true; }
+    });
+  });
+});
+
+/* 캐릭터 탭 */
+const ctabs=document.querySelectorAll('.ctab');
+ctabs.forEach(b=>b.addEventListener('click',()=>{
+  ctabs.forEach(x=>x.setAttribute('aria-selected','false'));
+  b.setAttribute('aria-selected','true');
+  document.getElementById('p-intro').classList.toggle('on', b.dataset.ctab==='intro');
+  document.getElementById('p-stats').classList.toggle('on', b.dataset.ctab==='stats');
+}));
+
+/* 무기 그리드 */
+const wgrid=document.getElementById('weapons');
+if(wgrid){
+  DATA.weapons.forEach(()=>{
+    const li=document.createElement('li'); li.className='wcard';
+    li.innerHTML=`<div class="thumb">무기 이미지</div>
+                  <div class="abil">
+                    <img src="assets/ability_main.png" alt="">
+                    <img src="assets/ability_sub.png"  alt="">
+                    <img src="assets/ability_sub.png"  alt="">
+                  </div>`;
+    wgrid.appendChild(li);
+  });
+}
+
+/* 스탯 바 애니메이션 */
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('i').forEach(el=>{
+        const p=parseFloat(el.style.getPropertyValue('--p')||'0');
+        el.animate([{width:'0%'},{width:p+'%'}],{duration:900,fill:'forwards',easing:'cubic-bezier(.22,.61,.36,1)'});
+      });
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:.4});
+document.querySelectorAll('.stats').forEach(s=>io.observe(s));
+
+/* Story 타임라인 샘플 */
+const storyline=document.getElementById('storyline');
+if(storyline){
+  ['수로의 각도 수업','첫 팀 가입','연어 알바 PRO+ 달성','챌린지 연승 기록'].forEach(t=>{
+    const d=document.createElement('div'); d.className='ti';
+    d.innerHTML=`<p style="margin:0;color:#222;font:800 12px Nunito">${t}</p>`;
+    storyline.appendChild(d);
+  });
+}
+</script>
 </body>
 </html>
-
